@@ -1,0 +1,294 @@
+{
+  "_doc": {
+    "vitals_valid_range": "Per vital-sign type (2nd token of a column name, e.g. `triage_sbp` -> `sbp`): values outside [outlier_low, outlier_high] are set to null; values inside that but outside [valid_low, valid_high] are clipped to the nearest valid bound.",
+    "derived": "Columns computed before scoring: sum of column * mul / div terms.",
+    "scores": "Each score is the sum of its components. A `bins` component awards `points` for the FIRST bin whose bounds (gt/ge/lt/le, any subset) hold, else 0 (matching numpy.select). A `weights` component adds column * weight."
+  },
+  "vitals_valid_range": {
+    "temperature": {"outlier_low": 14.2, "valid_low": 26, "valid_high": 45, "outlier_high": 47},
+    "heartrate": {"outlier_low": 0, "valid_low": 0, "valid_high": 350, "outlier_high": 390},
+    "resprate": {"outlier_low": 0, "valid_low": 0, "valid_high": 300, "outlier_high": 330},
+    "o2sat": {"outlier_low": 0, "valid_low": 0, "valid_high": 100, "outlier_high": 150},
+    "sbp": {"outlier_low": 0, "valid_low": 0, "valid_high": 375, "outlier_high": 375},
+    "dbp": {"outlier_low": 0, "valid_low": 0, "valid_high": 375, "outlier_high": 375},
+    "pain": {"outlier_low": 0, "valid_low": 0, "valid_high": 10, "outlier_high": 10},
+    "acuity": {"outlier_low": 1, "valid_low": 1, "valid_high": 5, "outlier_high": 5}
+  },
+  "derived": {
+    "triage_MAP": [{"column": "triage_sbp", "mul": 1, "div": 3}, {"column": "triage_dbp", "mul": 2, "div": 3}]
+  },
+  "scores": {
+    "CCI": [
+      {"column": "age", "bins": [
+        {"lt": 50, "points": 0},
+        {"ge": 50, "le": 59, "points": 1},
+        {"ge": 60, "le": 69, "points": 2},
+        {"ge": 70, "le": 79, "points": 3},
+        {"ge": 80, "points": 4}
+      ]},
+      {"weights": {"cci_MI": 1, "cci_CHF": 1, "cci_PVD": 1, "cci_Stroke": 1, "cci_Dementia": 1, "cci_Pulmonary": 1, "cci_PUD": 1, "cci_Rheumatic": 1, "cci_Liver1": 1, "cci_Liver2": 3, "cci_DM1": 1, "cci_DM2": 2, "cci_Paralysis": 2, "cci_Renal": 2, "cci_Cancer1": 2, "cci_Cancer2": 6, "cci_HIV": 6}}
+    ],
+    "REMS": [
+      {"column": "age", "bins": [
+        {"lt": 45, "points": 0},
+        {"ge": 45, "le": 54, "points": 2},
+        {"ge": 55, "le": 64, "points": 3},
+        {"ge": 65, "le": 74, "points": 5},
+        {"gt": 74, "points": 6}
+      ]},
+      {"column": "triage_MAP", "bins": [
+        {"gt": 159, "points": 4},
+        {"ge": 130, "le": 159, "points": 3},
+        {"ge": 110, "le": 129, "points": 2},
+        {"ge": 70, "le": 109, "points": 0},
+        {"ge": 50, "le": 69, "points": 2},
+        {"lt": 49, "points": 4}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"gt": 179, "points": 4},
+        {"ge": 140, "le": 179, "points": 3},
+        {"ge": 110, "le": 139, "points": 2},
+        {"ge": 70, "le": 109, "points": 0},
+        {"ge": 55, "le": 69, "points": 2},
+        {"ge": 40, "le": 54, "points": 3},
+        {"lt": 40, "points": 4}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"gt": 49, "points": 4},
+        {"ge": 35, "le": 49, "points": 3},
+        {"ge": 25, "le": 34, "points": 1},
+        {"ge": 12, "le": 24, "points": 0},
+        {"ge": 10, "le": 11, "points": 1},
+        {"ge": 6, "le": 9, "points": 2},
+        {"lt": 6, "points": 4}
+      ]},
+      {"column": "triage_o2sat", "bins": [
+        {"lt": 75, "points": 4},
+        {"ge": 75, "le": 85, "points": 3},
+        {"ge": 86, "le": 89, "points": 1},
+        {"gt": 89, "points": 0}
+      ]}
+    ],
+    "CART": [
+      {"column": "age", "bins": [
+        {"lt": 55, "points": 0},
+        {"ge": 55, "le": 69, "points": 4},
+        {"ge": 70, "points": 9}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"lt": 21, "points": 0},
+        {"ge": 21, "le": 23, "points": 8},
+        {"ge": 24, "le": 25, "points": 12},
+        {"ge": 26, "le": 29, "points": 15},
+        {"ge": 30, "points": 22}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"lt": 110, "points": 0},
+        {"ge": 110, "le": 139, "points": 4},
+        {"ge": 140, "points": 13}
+      ]},
+      {"column": "triage_dbp", "bins": [
+        {"gt": 49, "points": 0},
+        {"ge": 40, "le": 49, "points": 4},
+        {"ge": 35, "le": 39, "points": 6},
+        {"lt": 35, "points": 13}
+      ]}
+    ],
+    "NEWS": [
+      {"column": "triage_resprate", "bins": [
+        {"le": 8, "points": 3},
+        {"ge": 9, "le": 11, "points": 1},
+        {"ge": 12, "le": 20, "points": 0},
+        {"ge": 21, "le": 24, "points": 2},
+        {"ge": 25, "points": 3}
+      ]},
+      {"column": "triage_o2sat", "bins": [
+        {"le": 91, "points": 3},
+        {"ge": 92, "le": 93, "points": 2},
+        {"ge": 94, "le": 95, "points": 1},
+        {"ge": 96, "points": 0}
+      ]},
+      {"column": "triage_temperature", "bins": [
+        {"le": 35, "points": 3},
+        {"gt": 35, "le": 36, "points": 1},
+        {"gt": 36, "le": 38, "points": 0},
+        {"gt": 38, "le": 39, "points": 1},
+        {"gt": 39, "points": 2}
+      ]},
+      {"column": "triage_sbp", "bins": [
+        {"le": 90, "points": 3},
+        {"ge": 91, "le": 100, "points": 2},
+        {"ge": 101, "le": 110, "points": 1},
+        {"ge": 111, "le": 219, "points": 0},
+        {"gt": 219, "points": 3}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"le": 40, "points": 3},
+        {"ge": 41, "le": 50, "points": 1},
+        {"ge": 51, "le": 90, "points": 0},
+        {"ge": 91, "le": 110, "points": 1},
+        {"ge": 111, "le": 130, "points": 2},
+        {"gt": 130, "points": 3}
+      ]}
+    ],
+    "NEWS2": [
+      {"column": "triage_resprate", "bins": [
+        {"le": 8, "points": 3},
+        {"ge": 9, "le": 11, "points": 1},
+        {"ge": 12, "le": 20, "points": 0},
+        {"ge": 21, "le": 24, "points": 2},
+        {"ge": 25, "points": 3}
+      ]},
+      {"column": "triage_temperature", "bins": [
+        {"le": 35, "points": 3},
+        {"gt": 35, "le": 36, "points": 1},
+        {"gt": 36, "le": 38, "points": 0},
+        {"gt": 38, "le": 39, "points": 1},
+        {"gt": 39, "points": 2}
+      ]},
+      {"column": "triage_sbp", "bins": [
+        {"le": 90, "points": 3},
+        {"ge": 91, "le": 100, "points": 2},
+        {"ge": 101, "le": 110, "points": 1},
+        {"ge": 111, "le": 219, "points": 0},
+        {"gt": 219, "points": 3}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"le": 40, "points": 3},
+        {"ge": 41, "le": 50, "points": 1},
+        {"ge": 51, "le": 90, "points": 0},
+        {"ge": 91, "le": 110, "points": 1},
+        {"ge": 111, "le": 130, "points": 2},
+        {"gt": 130, "points": 3}
+      ]}
+    ],
+    "MEWS": [
+      {"column": "triage_sbp", "bins": [
+        {"le": 70, "points": 3},
+        {"ge": 71, "le": 80, "points": 2},
+        {"ge": 81, "le": 100, "points": 1},
+        {"ge": 101, "le": 199, "points": 0},
+        {"gt": 199, "points": 2}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"le": 40, "points": 2},
+        {"ge": 41, "le": 50, "points": 1},
+        {"ge": 51, "le": 100, "points": 0},
+        {"ge": 101, "le": 110, "points": 1},
+        {"ge": 111, "le": 129, "points": 2},
+        {"ge": 130, "points": 3}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"lt": 9, "points": 2},
+        {"ge": 9, "le": 14, "points": 0},
+        {"ge": 15, "le": 20, "points": 1},
+        {"ge": 21, "le": 29, "points": 2},
+        {"ge": 30, "points": 3}
+      ]},
+      {"column": "triage_temperature", "bins": [
+        {"lt": 35, "points": 2},
+        {"ge": 35, "lt": 38.5, "points": 0},
+        {"ge": 38.5, "points": 2}
+      ]}
+    ],
+    "SERP2d": [
+      {"column": "age", "bins": [
+        {"lt": 30, "points": 0},
+        {"ge": 30, "le": 49, "points": 9},
+        {"ge": 50, "le": 79, "points": 13},
+        {"ge": 80, "points": 17}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"lt": 60, "points": 3},
+        {"ge": 60, "le": 69, "points": 0},
+        {"ge": 70, "le": 94, "points": 3},
+        {"ge": 95, "le": 109, "points": 6},
+        {"ge": 110, "points": 10}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"lt": 16, "points": 11},
+        {"ge": 16, "le": 19, "points": 0},
+        {"ge": 20, "points": 7}
+      ]},
+      {"column": "triage_sbp", "bins": [
+        {"lt": 100, "points": 10},
+        {"ge": 100, "le": 114, "points": 4},
+        {"ge": 115, "le": 149, "points": 1},
+        {"ge": 150, "points": 0}
+      ]},
+      {"column": "triage_dbp", "bins": [
+        {"lt": 50, "points": 5},
+        {"ge": 50, "le": 94, "points": 0},
+        {"ge": 95, "points": 1}
+      ]},
+      {"column": "triage_o2sat", "bins": [
+        {"lt": 90, "points": 7},
+        {"ge": 90, "le": 94, "points": 5},
+        {"ge": 95, "points": 0}
+      ]}
+    ],
+    "SERP7d": [
+      {"column": "age", "bins": [
+        {"lt": 30, "points": 0},
+        {"ge": 30, "le": 49, "points": 10},
+        {"ge": 50, "le": 79, "points": 17},
+        {"ge": 80, "points": 21}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"lt": 60, "points": 2},
+        {"ge": 60, "le": 69, "points": 0},
+        {"ge": 70, "le": 94, "points": 4},
+        {"ge": 95, "le": 109, "points": 8},
+        {"ge": 110, "points": 12}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"lt": 16, "points": 10},
+        {"ge": 16, "le": 19, "points": 0},
+        {"ge": 20, "points": 6}
+      ]},
+      {"column": "triage_sbp", "bins": [
+        {"lt": 100, "points": 12},
+        {"ge": 100, "le": 114, "points": 6},
+        {"ge": 115, "le": 149, "points": 1},
+        {"ge": 150, "points": 0}
+      ]},
+      {"column": "triage_dbp", "bins": [
+        {"lt": 50, "points": 4},
+        {"ge": 50, "le": 94, "points": 0},
+        {"ge": 95, "points": 2}
+      ]}
+    ],
+    "SERP30d": [
+      {"column": "age", "bins": [
+        {"lt": 30, "points": 0},
+        {"ge": 30, "le": 49, "points": 8},
+        {"ge": 50, "le": 79, "points": 14},
+        {"ge": 80, "points": 19}
+      ]},
+      {"column": "triage_heartrate", "bins": [
+        {"lt": 60, "points": 1},
+        {"ge": 60, "le": 69, "points": 0},
+        {"ge": 70, "le": 94, "points": 2},
+        {"ge": 95, "le": 109, "points": 6},
+        {"ge": 110, "points": 9}
+      ]},
+      {"column": "triage_resprate", "bins": [
+        {"lt": 16, "points": 8},
+        {"ge": 16, "le": 19, "points": 0},
+        {"ge": 20, "points": 6}
+      ]},
+      {"column": "triage_sbp", "bins": [
+        {"lt": 100, "points": 8},
+        {"ge": 100, "le": 114, "points": 5},
+        {"ge": 115, "le": 149, "points": 2},
+        {"ge": 150, "points": 0}
+      ]},
+      {"column": "triage_dbp", "bins": [
+        {"lt": 50, "points": 3},
+        {"ge": 50, "le": 94, "points": 0},
+        {"ge": 95, "points": 2}
+      ]},
+      {"weights": {"cci_Cancer1": 6, "cci_Cancer2": 12}}
+    ]
+  }
+}
