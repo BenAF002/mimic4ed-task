@@ -4,4 +4,32 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "dagster>=1.13.31",
+    "dagster-webserver>=1.13.31",
+    "ipykernel>=7.4.0",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.11.2",
+    "mimic-shared",
+    "mlflow>=3.18.0",
+    "numpy>=2.5.5",
+    "pandas>=3.1.1",
+    "polars>=2.1.0",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "torch>=2.15.0",
+    "tqdm>=4.70.1",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "scripts",
+]
+
+[tool.uv.sources]
+mimic-shared = { workspace = true, editable = true }
