@@ -31,3 +31,4 @@ class DataPartition:
         # create numpy arrays
         self.X = self.X_pl.to_numpy()
         self.y = self.y_pl.to_numpy().ravel()
+
