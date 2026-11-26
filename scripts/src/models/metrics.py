@@ -11,7 +11,14 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
+    roc_curve,
 )
+
+
+def optimal_threshold(y_true: np.ndarray, y_prob: np.ndarray) -> float:
+    """Score threshold at the ROC point closest to (fpr=0, tpr=1), as in the original benchmark."""
+    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+    return float(thresholds[np.hypot(fpr, tpr - 1).argmin()])
 
 
 class BasicMetrics:

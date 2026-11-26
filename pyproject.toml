@@ -34,3 +34,10 @@ members = [
 
 [tool.uv.sources]
 mimic-shared = { workspace = true, editable = true }
+# CUDA build of torch (PyPI's Windows wheels are CPU-only)
+torch = { index = "pytorch-cu132" }
+
+[[tool.uv.index]]
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
+explicit = true

@@ -32,6 +32,18 @@ class Med2Vec(nn.Module):
         self.fc1 = nn.Linear(256 + demographic_size, 128)
         self.fc2 = nn.Linear(128, 50)
         self.out = nn.Linear(50, 1)
+        self._init_like_keras()
+
+    def _init_like_keras(self) -> None:
+        """Keras defaults: embeddings ~ U(-0.05, 0.05), Glorot-uniform kernels, zero biases.
+
+        PyTorch's N(0, 1) embedding init makes the summed embedding far too large for stays with
+        many codes, which badly hurts training.
+        """
+        nn.init.uniform_(self.embedding.weight, -0.05, 0.05)
+        for layer in (self.icd_fc, self.fc1, self.fc2, self.out):
+            nn.init.xavier_uniform_(layer.weight)
+            nn.init.zeros_(layer.bias)
 
     def forward(self, demo: torch.Tensor, icd: torch.Tensor) -> torch.Tensor:
         h = torch.relu(self.icd_fc(self.embedding(icd).sum(dim=1)))
